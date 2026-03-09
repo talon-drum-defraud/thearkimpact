@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Ark Impact — Coming Soon</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --black:   #f0ede8;
+      --dark:    #e4e0d8;
+      --mid:     #aaaaaa;
+      --steel:   #777777;
+      --silver:  #444444;
+      --light:   #222222;
+      --white:   #0a0a0a;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Jost', sans-serif;
+      overflow: hidden;
+    }
+
+    .scene {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .grain {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: .45;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 128px;
+      mix-blend-mode: overlay;
+    }
+
+    .card {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .emblem {
+      width: 68px;
+      height: 68px;
+      margin-bottom: 2.2rem;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: rise .9s .2s cubic-bezier(.22,.7,.36,1) forwards;
+    }
+
+    .tag {
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: .62rem;
+      letter-spacing: .38em;
+      text-transform: uppercase;
+      color: var(--steel);
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      animation: rise .9s .4s cubic-bezier(.22,.7,.36,1) forwards;
+    }
+
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(3rem, 8vw, 6.5rem);
+      line-height: 1;
+      letter-spacing: -.01em;
+      color: var(--white);
+      opacity: 0;
+      animation: rise 1s .55s cubic-bezier(.22,.7,.36,1) forwards;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--silver);
+    }
+
+    .divider {
+      width: 48px;
+      height: 1px;
+      background: var(--mid);
+      margin: 2rem auto;
+      opacity: 0;
+      animation: expand .9s .75s ease forwards;
+    }
+
+    .subtitle {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(1rem, 2.5vw, 1.3rem);
+      color: var(--silver);
+      max-width: 38ch;
+      line-height: 1.75;
+      opacity: 0;
+      animation: rise .9s .9s cubic-bezier(.22,.7,.36,1) forwards;
+    }
+
+    .contact {
+      margin-top: 2.8rem;
+      opacity: 0;
+      animation: rise .9s 1.1s cubic-bezier(.22,.7,.36,1) forwards;
+    }
+
+    .contact p {
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      font-size: .6rem;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      color: var(--steel);
+      margin-bottom: .75rem;
+    }
+
+    .contact a {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--light);
+      text-decoration: none;
+      border-bottom: 1px solid var(--mid);
+      padding-bottom: 2px;
+      transition: color .3s, border-color .3s;
+    }
+
+    .contact a:hover {
+      color: var(--white);
+      border-color: var(--steel);
+    }
+
+    .url {
+      margin-top: 2.8rem;
+      font-size: .58rem;
+      letter-spacing: .32em;
+      text-transform: uppercase;
+      color: var(--mid);
+      opacity: 0;
+      animation: rise .9s 1.3s ease forwards;
+    }
+
+    /* Falling leaves */
+    .leaf {
+      position: fixed;
+      z-index: 5;
+      pointer-events: none;
+      opacity: 0;
+      animation: leaffall linear infinite;
+    }
+
+    @keyframes leaffall {
+      0%   { transform: translateY(-80px) rotate(0deg) translateX(0);   opacity: 0; }
+      8%   { opacity: .4; }
+      92%  { opacity: .2; }
+      100% { transform: translateY(110vh) rotate(540deg) translateX(80px); opacity: 0; }
+    }
+
+    @keyframes rise {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes expand {
+      from { width: 0; opacity: 0; }
+      to   { width: 48px; opacity: 1; }
+    }
+
+    .mist-layer {
+      position: fixed;
+      left: 0; right: 0;
+      height: 240px;
+      pointer-events: none;
+      z-index: 3;
+    }
+    .mist-layer.bottom {
+      bottom: 0;
+      background: linear-gradient(to top, rgba(240,237,232,.98) 0%, transparent 100%);
+    }
+    .mist-layer.top {
+      top: 0;
+      background: linear-gradient(to bottom, rgba(240,237,232,.75) 0%, transparent 100%);
+    }
+
+    .mist-strip {
+      position: fixed;
+      left: -20%;
+      width: 140%;
+      height: 55px;
+      background: linear-gradient(to right, transparent, rgba(180,180,180,.03), rgba(180,180,180,.05), rgba(180,180,180,.03), transparent);
+      pointer-events: none;
+      z-index: 4;
+      animation: mistdrift linear infinite;
+    }
+    @keyframes mistdrift {
+      from { transform: translateX(-10%); opacity: .4; }
+      50%  { opacity: .85; }
+      to   { transform: translateX(10%);  opacity: .4; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SVG Scene — monochrome forest -->
+<svg class="scene" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="sky" cx="50%" cy="28%" r="72%">
+      <stop offset="0%"   stop-color="#d8d4cc"/>
+      <stop offset="55%"  stop-color="#e8e4dc"/>
+      <stop offset="100%" stop-color="#f2efe9"/>
+    </radialGradient>
+    <radialGradient id="moonglow" cx="50%" cy="38%" r="28%">
+      <stop offset="0%"  stop-color="#000000" stop-opacity=".05"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur-sm"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="blur-md"><feGaussianBlur stdDeviation="9"/></filter>
+    <filter id="blur-lg"><feGaussianBlur stdDeviation="20"/></filter>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="1440" height="900" fill="url(#sky)"/>
+  <rect width="1440" height="900" fill="url(#moonglow)"/>
+
+  <!-- Specs / dust -->
+  <g opacity=".5">
+    <circle cx="190"  cy="75"  r="1"   fill="#555" opacity=".5"/>
+    <circle cx="370"  cy="48"  r=".7"  fill="#333"/>
+    <circle cx="490"  cy="105" r="1.1" fill="#444" opacity=".5"/>
+    <circle cx="690"  cy="38"  r=".9"  fill="#222"/>
+    <circle cx="910"  cy="88"  r="1"   fill="#555" opacity=".5"/>
+    <circle cx="1090" cy="52"  r=".8"  fill="#333"/>
+    <circle cx="1270" cy="98"  r="1"   fill="#444" opacity=".45"/>
+    <circle cx="55"   cy="125" r=".6"  fill="#555"/>
+    <circle cx="830"  cy="28"  r="1"   fill="#222" opacity=".7"/>
+    <circle cx="1380" cy="70"  r=".7"  fill="#444"/>
+    <circle cx="620"  cy="60"  r=".8"  fill="#333" opacity=".5"/>
+  </g>
+
+  <!-- Sun halo -->
+  <circle cx="720" cy="155" r="60" fill="#000000" filter="url(#blur-lg)" opacity=".05"/>
+  <circle cx="720" cy="155" r="40" fill="#000000" filter="url(#blur-md)" opacity=".07"/>
+  <!-- Sun -->
+  <circle cx="720" cy="155" r="36" fill="#2a2a2a" opacity=".2"/>
+  <!-- Crescent mask -->
+  <circle cx="738" cy="147" r="30" fill="#e0dcd4" opacity=".9"/>
+
+  <!-- Far mountains -->
+  <path d="M0 630 Q200 460 400 545 Q600 460 720 505 Q860 445 1080 525 Q1260 465 1440 535 L1440 900 L0 900Z"
+        fill="#e0dcd4" opacity=".95"/>
+
+  <!-- Mid trees — blurred far layer -->
+  <g filter="url(#blur-md)" opacity=".4">
+    <path d="M80  700 L96  575 L112 700Z" fill="#ccc"/>
+    <path d="M135 700 L153 548 L171 700Z" fill="#ccc"/>
+    <path d="M205 700 L228 528 L251 700Z" fill="#ccc"/>
+    <path d="M600 700 L622 535 L644 700Z" fill="#ccc"/>
+    <path d="M820 700 L842 518 L864 700Z" fill="#ccc"/>
+    <path d="M1200 700 L1220 543 L1240 700Z" fill="#ccc"/>
+    <path d="M1265 700 L1285 558 L1305 700Z" fill="#ccc"/>
+    <path d="M1345 700 L1363 578 L1381 700Z" fill="#ccc"/>
+  </g>
+
+  <!-- Mid trees — soft layer -->
+  <g filter="url(#blur-sm)" opacity=".6">
+    <path d="M0 900 L0 760 L22 655 L44 760 L44 900Z"   fill="#d8d4cc"/>
+    <path d="M55 900 L55 740 L88 598 L121 740 L121 900Z" fill="#d8d4cc"/>
+    <path d="M125 900 L125 730 L162 568 L199 730 L199 900Z" fill="#d0ccc4"/>
+    <path d="M1255 900 L1255 728 L1292 558 L1329 728 L1329 900Z" fill="#d8d4cc"/>
+    <path d="M1345 900 L1345 748 L1376 628 L1407 748 L1407 900Z" fill="#d0ccc4"/>
+    <path d="M1405 900 L1405 768 L1430 678 L1440 718 L1440 900Z" fill="#d8d4cc"/>
+    <path d="M645 900 L645 758 L667 638 L689 758 L689 900Z" fill="#d8d4cc"/>
+    <path d="M765 900 L765 748 L789 608 L813 748 L813 900Z" fill="#d8d4cc"/>
+  </g>
+
+  <!-- Foreground trees — sharp, light -->
+  <!-- Left -->
+  <path d="M-20 900 L-20 820 L12 698 L2 820Z"         fill="#f0ede8"/>
+  <path d="M5 900 L5 840 L38 678 L38 840Z"             fill="#ece9e4"/>
+  <path d="M42 900 L42 848 L85 676 L105 848 L105 900Z" fill="#e8e4de"/>
+  <path d="M85 900 L95 868 L138 648 L165 868 L165 900Z" fill="#ece9e4"/>
+  <path d="M152 900 L162 874 L210 638 L248 874 L248 900Z" fill="#e8e4de"/>
+  <path d="M224 900 L234 878 L275 678 L308 878 L308 900Z" fill="#f0ede8"/>
+
+  <!-- Right -->
+  <path d="M1460 900 L1460 820 L1434 698 L1448 820Z"   fill="#f0ede8"/>
+  <path d="M1440 900 L1445 842 L1414 682 L1414 842Z"   fill="#ece9e4"/>
+  <path d="M1402 900 L1406 852 L1368 668 L1348 852 L1348 900Z" fill="#e8e4de"/>
+  <path d="M1360 900 L1366 872 L1324 642 L1298 872 L1298 900Z" fill="#ece9e4"/>
+  <path d="M1308 900 L1315 876 L1268 672 L1242 876 L1242 900Z" fill="#e8e4de"/>
+  <path d="M1238 900 L1244 880 L1202 675 L1180 880 L1180 900Z" fill="#f0ede8"/>
+
+  <!-- Ground -->
+  <ellipse cx="720"  cy="900" rx="920" ry="115" fill="#ece9e4" opacity=".9"/>
+  <ellipse cx="200"  cy="900" rx="420" ry="75"  fill="#f0ede8" opacity=".8"/>
+  <ellipse cx="1240" cy="900" rx="420" ry="75"  fill="#f0ede8" opacity=".8"/>
+
+  <!-- Subtle dots — dark on light -->
+  <g>
+    <circle cx="340"  cy="625" r="2"   fill="#000" filter="url(#blur-sm)" opacity=".1"/>
+    <circle cx="415"  cy="682" r="1.5" fill="#000" filter="url(#blur-sm)" opacity=".08"/>
+    <circle cx="295"  cy="735" r="2.5" fill="#000" filter="url(#blur-sm)" opacity=".07"/>
+    <circle cx="1095" cy="642" r="2"   fill="#000" filter="url(#blur-sm)" opacity=".09"/>
+    <circle cx="1052" cy="705" r="1.5" fill="#000" filter="url(#blur-sm)" opacity=".07"/>
+    <circle cx="1155" cy="752" r="2.5" fill="#000" filter="url(#blur-sm)" opacity=".06"/>
+    <circle cx="555"  cy="705" r="1.5" fill="#000" filter="url(#blur-sm)" opacity=".08"/>
+    <circle cx="905"  cy="685" r="2"   fill="#000" filter="url(#blur-sm)" opacity=".09"/>
+  </g>
+</svg>
+
+<!-- Grain -->
+<div class="grain"></div>
+
+<!-- Mist -->
+<div class="mist-layer top"></div>
+<div class="mist-layer bottom"></div>
+<div class="mist-strip" style="bottom: 38%; animation-duration: 24s;"></div>
+<div class="mist-strip" style="bottom: 27%; animation-duration: 32s; animation-direction: reverse;"></div>
+<div class="mist-strip" style="bottom: 17%; animation-duration: 19s;"></div>
+
+<!-- Falling leaves (greyscale) -->
+<script>
+  const LEAVES = [
+    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2C6 8 4 14 12 22 20 14 18 8 12 2Z' fill='%23888' opacity='.5'/></svg>`,
+    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 24'><path d='M10 1C4 7 2 13 10 23 18 13 16 7 10 1Z' fill='%23777' opacity='.45'/></svg>`,
+    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 20'><ellipse cx='14' cy='10' rx='13' ry='9' fill='%23999' opacity='.4' transform='rotate(-20 14 10)'/></svg>`,
+  ];
+  for (let i = 0; i < 14; i++) {
+    const el = document.createElement('div');
+    el.className = 'leaf';
+    const size = 10 + Math.random() * 16;
+    el.style.cssText = `left:${Math.random()*100}vw;width:${size}px;height:${size}px;animation-duration:${12+Math.random()*20}s;animation-delay:${Math.random()*20}s;`;
+    el.innerHTML = decodeURIComponent(LEAVES[Math.floor(Math.random()*LEAVES.length)]);
+    document.body.appendChild(el);
+  }
+</script>
+
+<!-- Content -->
+<div class="card">
+
+  <!-- Emblem -->
+  <svg class="emblem" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="36" cy="36" r="35" stroke="#aaa" stroke-width="1"/>
+    <path d="M36 14C22 26 18 36 36 56 54 36 50 26 36 14Z" fill="#999" opacity=".8"/>
+    <path d="M36 14 L36 56" stroke="#ddd" stroke-width="1.2"/>
+    <path d="M36 30 Q28 36 22 38" stroke="#ddd" stroke-width=".8" stroke-linecap="round"/>
+    <path d="M36 38 Q44 42 50 40" stroke="#ddd" stroke-width=".8" stroke-linecap="round"/>
+  </svg>
+
+  <h1>The <em>Ark</em><br/>Impact</h1>
+
+  <div class="divider"></div>
+
+  <p class="subtitle">
+    Walking alongside organisations shaping change,<br/>
+    strengthening the work that matters.<br/><br/>
+    Website coming soon.
+  </p>
+
+  <div class="contact">
+    <p>Get in touch</p>
+    <a href="mailto:hello@thearkimpact.com">hello@thearkimpact.com</a>
+  </div>
+
+  <p class="url">thearkimpact.com</p>
+</div>
+
+</body>
+</html>
