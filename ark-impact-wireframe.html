@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Ark Impact — UI/UX Wireframe</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #1a1714; --stone: #7a7268; --sand: #e8e0d4; --paper: #f5f1eb;
+    --cream: #faf8f5; --moss: #4a5240; --rust: #8b5e3c; --accent: #c4a882;
+    --wf-border: #ccc4b8; --wf-fill: #ede8e0; --wf-dark: #a09890; --wf-light: #f0ece5;
+  }
+  body { font-family: 'Jost', sans-serif; background: #e9e4dc; color: var(--ink); min-height: 100vh; }
+
+  /* TOOLBAR */
+  .toolbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    background: var(--ink); display: flex; align-items: center;
+    padding: 0 24px; height: 48px; box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  .toolbar-brand { font-family: 'Cormorant Garamond', serif; font-size: 15px; font-weight: 400; letter-spacing: 0.08em; color: var(--accent); margin-right: auto; }
+  .toolbar-brand span { color: #fff; font-style: italic; }
+  .tab-btn { background: transparent; border: none; cursor: pointer; font-family: 'Jost', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.5); padding: 0 20px; height: 48px; border-bottom: 2px solid transparent; transition: all 0.2s; }
+  .tab-btn:hover { color: rgba(255,255,255,0.85); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .wf-badge { background: rgba(196,168,130,0.15); border: 1px solid rgba(196,168,130,0.3); color: var(--accent); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 10px; border-radius: 2px; margin-left: 16px; }
+
+  /* LAYOUT */
+  .workspace { margin-top: 48px; display: flex; min-height: calc(100vh - 48px); }
+
+  /* ANNOTATION PANEL */
+  .annotations { width: 260px; flex-shrink: 0; background: var(--cream); border-right: 1px solid var(--wf-border); padding: 24px 20px; overflow-y: auto; position: sticky; top: 48px; height: calc(100vh - 48px); }
+  .ann-title { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--stone); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--wf-border); }
+  .ann-section { margin-bottom: 20px; }
+  .ann-section-title { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--rust); margin-bottom: 8px; }
+  .ann-item { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
+  .ann-dot { width: 18px; height: 18px; border-radius: 50%; background: var(--rust); color: #fff; font-size: 9px; font-weight: 700; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+  .ann-text { font-size: 11px; line-height: 1.5; color: var(--stone); }
+  .ann-tag { display: inline-block; background: #f0ece5; border: 1px solid var(--wf-border); border-radius: 2px; font-size: 9px; letter-spacing: 0.08em; padding: 1px 5px; color: var(--stone); margin-top: 4px; }
+  .ann-divider { border: none; border-top: 1px solid var(--wf-border); margin: 16px 0; }
+  .improve-item { display: flex; gap: 8px; margin-bottom: 10px; align-items: flex-start; }
+  .improve-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .improve-text { font-size: 11px; line-height: 1.5; color: var(--ink); }
+
+  /* CANVAS */
+  .canvas { flex: 1; overflow-y: auto; overflow-x: hidden; background: #e0dbd2; padding: 32px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-label { text-align: center; margin-bottom: 16px; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(0,0,0,0.35); }
+
+  /* BROWSER CHROME */
+  .browser { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 8px 8px 0 0; box-shadow: 0 8px 40px rgba(0,0,0,0.2); overflow: hidden; }
+  .browser-bar { background: #d8d4ce; padding: 10px 16px; display: flex; align-items: center; gap: 10px; }
+  .dots { display: flex; gap: 6px; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .dot-r { background: #e05d44; } .dot-y { background: #f0b429; } .dot-g { background: #5cb85c; }
+  .url-bar { flex: 1; background: #fff; border-radius: 4px; padding: 4px 12px; font-size: 11px; color: var(--stone); font-family: monospace; }
+
+  /* WIREFRAME BASE */
+  .wf { background: var(--paper); }
+  .wf-redline { outline: 1.5px dashed rgba(139,94,60,0.3); outline-offset: -2px; position: relative; }
+  .ann-marker { position: absolute; width: 20px; height: 20px; border-radius: 50%; background: var(--rust); color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; z-index: 10; }
+
+  /* NAV */
+  .wf-nav { background: var(--cream); border-bottom: 1px solid var(--wf-border); padding: 0 48px; height: 64px; display: flex; align-items: center; justify-content: space-between; position: relative; }
+  .wf-logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; letter-spacing: 0.06em; color: var(--ink); }
+  .wf-logo em { font-style: italic; font-weight: 300; color: var(--stone); font-size: 16px; }
+  .wf-nav-links { display: flex; gap: 28px; align-items: center; }
+  .wf-nav-link { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--stone); cursor: pointer; padding: 4px 0; border-bottom: 1px solid transparent; }
+  .wf-nav-link.active { color: var(--ink); border-bottom-color: var(--rust); }
+  .wf-nav-cta { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; background: var(--ink); color: #fff; padding: 9px 20px; border-radius: 2px; cursor: pointer; }
+
+  /* HERO */
+  .wf-hero { position: relative; min-height: 520px; background: var(--wf-dark); display: flex; align-items: flex-end; overflow: hidden; }
+  .wf-hero-img { position: absolute; inset: 0; background: repeating-linear-gradient(45deg, #9a9188 0, #9a9188 1px, #8a8278 0, #8a8278 14px); opacity: 0.7; }
+  .wf-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(26,23,20,0.88) 0%, rgba(26,23,20,0.25) 55%, transparent 100%); }
+  .wf-hero-content { position: relative; z-index: 2; padding: 0 64px 64px; max-width: 640px; }
+  .wf-hero-tag { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; display: block; }
+  .wf-hero-h1 { font-family: 'Cormorant Garamond', serif; font-size: 46px; font-weight: 300; line-height: 1.15; color: #fff; margin-bottom: 20px; }
+  .wf-hero-h1 em { font-style: italic; color: var(--accent); }
+  .wf-hero-sub { font-size: 13px; line-height: 1.7; color: rgba(255,255,255,0.65); margin-bottom: 32px; max-width: 480px; }
+  .wf-hero-btns { display: flex; gap: 16px; }
+  .wf-btn-primary { background: var(--accent); color: var(--ink); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; padding: 13px 28px; border-radius: 2px; cursor: pointer; font-weight: 500; display: inline-block; }
+  .wf-btn-outline { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; padding: 13px 28px; border-radius: 2px; cursor: pointer; display: inline-block; }
+  .wf-hero-scroll { position: absolute; right: 48px; bottom: 48px; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .wf-hero-scroll span { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+  .scroll-line { width: 1px; height: 40px; background: rgba(255,255,255,0.2); }
+
+  /* SECTIONS */
+  .wf-section-label { font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--stone); margin-bottom: 12px; display: block; }
+  .wf-section-title { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 300; color: var(--ink); line-height: 1.2; margin-bottom: 20px; }
+  .wf-section-title em { font-style: italic; }
+  .wf-body { font-size: 13px; line-height: 1.8; color: var(--stone); }
+
+  /* INTRO SPLIT */
+  .wf-intro { background: var(--cream); padding: 80px 64px; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+  .wf-portrait { background: var(--wf-fill); border: 1px solid var(--wf-border); border-radius: 2px; height: 380px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; }
+  .wf-img-label { font-size: 10px; letter-spacing: 0.1em; color: var(--wf-dark); text-transform: uppercase; }
+  .wf-pill-row { display: flex; gap: 8px; margin-top: 24px; flex-wrap: wrap; }
+  .wf-pill { border: 1px solid var(--wf-border); border-radius: 40px; padding: 5px 14px; font-size: 11px; letter-spacing: 0.06em; color: var(--stone); }
+
+  /* CARDS */
+  .wf-cards-section { background: var(--sand); padding: 80px 64px; }
+  .wf-cards-header { text-align: center; margin-bottom: 48px; }
+  .wf-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+  .wf-card { background: var(--paper); padding: 40px 32px; position: relative; }
+  .wf-card-num { font-family: 'Cormorant Garamond', serif; font-size: 64px; font-weight: 300; color: var(--wf-border); line-height: 1; margin-bottom: 16px; }
+  .wf-card-title { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 400; color: var(--ink); margin-bottom: 12px; }
+  .wf-card-body { font-size: 12px; line-height: 1.7; color: var(--stone); margin-bottom: 20px; }
+  .wf-card-arrow { font-size: 18px; color: var(--rust); position: absolute; bottom: 32px; right: 28px; }
+  .wf-card-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .wf-card-tag { font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; background: var(--sand); padding: 3px 8px; color: var(--stone); }
+
+  /* TESTIMONIAL */
+  .wf-testimonial { background: var(--ink); padding: 80px 64px; display: grid; grid-template-columns: 1fr 2fr; gap: 64px; align-items: center; }
+  .wf-test-label { font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; display: block; }
+  .wf-test-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 300; color: #fff; line-height: 1.3; }
+  .wf-test-quote { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-style: italic; font-weight: 300; color: rgba(255,255,255,0.8); line-height: 1.6; margin-bottom: 24px; }
+  .wf-test-author { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+  .wf-test-dots { display: flex; gap: 8px; margin-top: 24px; }
+  .wf-test-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2); }
+  .wf-test-dot.active { background: var(--accent); }
+
+  /* CONTACT */
+  .wf-cta { background: var(--paper); padding: 80px 64px; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+  .wf-cta-title { font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 300; line-height: 1.3; color: var(--ink); margin-bottom: 20px; }
+  .wf-cta-title em { font-style: italic; }
+  .wf-cta-body { font-size: 13px; line-height: 1.8; color: var(--stone); margin-bottom: 24px; }
+  .wf-contact-item { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+  .wf-contact-icon { font-size: 14px; color: var(--rust); }
+  .wf-contact-text { font-size: 12px; color: var(--stone); }
+  .wf-form { display: flex; flex-direction: column; gap: 14px; }
+  .wf-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .wf-input { background: var(--cream); border: 1px solid var(--wf-border); padding: 11px 14px; font-size: 12px; color: var(--stone); font-family: 'Jost', sans-serif; width: 100%; }
+  .wf-textarea { height: 100px; resize: none; }
+  .wf-submit { background: var(--ink); color: #fff; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; padding: 14px 32px; cursor: pointer; border: none; font-family: 'Jost', sans-serif; align-self: flex-start; }
+
+  /* FOOTER */
+  .wf-footer { background: #121110; padding: 48px 64px; display: flex; justify-content: space-between; align-items: center; }
+  .wf-footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: rgba(255,255,255,0.6); }
+  .wf-footer-copy { font-size: 11px; color: rgba(255,255,255,0.3); }
+  .wf-footer-links { display: flex; gap: 20px; }
+  .wf-footer-link { font-size: 11px; letter-spacing: 0.08em; color: rgba(255,255,255,0.4); }
+
+  /* PAGE HERO */
+  .wf-page-hero { background: var(--ink); padding: 100px 64px 80px; text-align: center; }
+  .wf-page-hero-title { font-family: 'Cormorant Garamond', serif; font-size: 54px; font-weight: 300; color: #fff; margin-bottom: 16px; line-height: 1.1; }
+  .wf-page-hero-sub { font-size: 13px; color: rgba(255,255,255,0.45); letter-spacing: 0.06em; }
+
+  /* SERVICE BLOCKS */
+  .wf-service-block { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--wf-border); }
+  .wf-service-block.rev { direction: rtl; }
+  .wf-service-block.rev > * { direction: ltr; }
+  .wf-service-img { background: var(--wf-fill); border: 1px solid var(--wf-border); min-height: 320px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; }
+  .wf-service-content { padding: 64px 56px; }
+  .wf-service-num { font-family: 'Cormorant Garamond', serif; font-size: 80px; font-weight: 300; color: var(--wf-border); line-height: 1; display: block; margin-bottom: -8px; }
+  .wf-service-title { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300; color: var(--ink); margin-bottom: 16px; }
+  .wf-service-body { font-size: 13px; line-height: 1.8; color: var(--stone); margin-bottom: 20px; }
+  .wf-service-how { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rust); margin-bottom: 8px; font-weight: 500; }
+  .wf-service-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .wf-service-tag { border: 1px solid var(--wf-border); padding: 4px 10px; font-size: 10px; letter-spacing: 0.08em; color: var(--stone); }
+  .wf-service-change { font-size: 12px; font-style: italic; color: var(--moss); line-height: 1.6; }
+
+  /* ADVISORY */
+  .wf-advisory { background: var(--sand); padding: 80px 64px; text-align: center; }
+  .wf-advisory-inner { max-width: 600px; margin: 0 auto; }
+  .wf-advisory-title { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 300; color: var(--ink); margin-bottom: 20px; line-height: 1.2; }
+  .wf-advisory-body { font-size: 13px; line-height: 1.8; color: var(--stone); margin-bottom: 32px; }
+
+  /* STORY */
+  .wf-story-hero { background: var(--ink); padding: 100px 64px; }
+  .wf-story-intro { background: var(--cream); padding: 80px 64px; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
+  .wf-cred-item { display: flex; gap: 12px; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--wf-border); }
+  .wf-cred-icon { font-size: 16px; color: var(--rust); flex-shrink: 0; margin-top: 1px; }
+  .wf-cred-title { font-size: 12px; font-weight: 500; color: var(--ink); }
+  .wf-cred-sub { font-size: 11px; color: var(--stone); margin-top: 2px; }
+
+  /* PHOTO GRID */
+  .wf-photo-grid { background: var(--sand); padding: 64px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .wf-photo-thumb { background: var(--wf-fill); border: 1px solid var(--wf-border); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--wf-dark); opacity: 0.4; }
+
+  /* ORGS */
+  .wf-orgs { background: var(--paper); padding: 64px; }
+  .wf-orgs-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+  .wf-org-chip { border: 1px solid var(--wf-border); padding: 8px 16px; font-size: 11px; letter-spacing: 0.06em; color: var(--stone); }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="toolbar-brand">The Ark Impact — <span>Wireframes</span></div>
+  <button class="tab-btn active" onclick="showPage('home',this)">Home</button>
+  <button class="tab-btn" onclick="showPage('services',this)">Services</button>
+  <button class="tab-btn" onclick="showPage('story',this)">My Story</button>
+  <span class="wf-badge">Mid-Stage WF</span>
+</div>
+
+<div class="workspace">
+
+  <!-- ANNOTATION PANEL -->
+  <aside class="annotations">
+    <div id="ann-home">
+      <p class="ann-title">Annotations — Home</p>
+      <div class="ann-section">
+        <p class="ann-section-title">① Navigation</p>
+        <div class="ann-item"><div class="ann-dot">1</div><div class="ann-text">Logo left · nav center · "Let's Talk" CTA right. Sticky on scroll. <span class="ann-tag">Sticky</span></div></div>
+      </div>
+      <div class="ann-section">
+        <p class="ann-section-title">② Hero</p>
+        <div class="ann-item"><div class="ann-dot">2</div><div class="ann-text">Full-bleed nature image (stone balancing) with dark gradient overlay. Serif italic H1.</div></div>
+        <div class="ann-item"><div class="ann-dot">3</div><div class="ann-text">Primary CTA "Explore Services" + ghost button "My Story". Scroll indicator right.</div></div>
+      </div>
+      <div class="ann-section">
+        <p class="ann-section-title">③ Intro Split</p>
+        <div class="ann-item"><div class="ann-dot">4</div><div class="ann-text">Portrait left · brand story right. Credential pills (Cambridge, LEAD, Dalai Lama) below copy.</div></div>
+      </div>
+      <div class="ann-section">
+        <p class="ann-section-title">④ Services Preview</p>
+        <div class="ann-item"><div class="ann-dot">5</div><div class="ann-text">Three cards: Align / Grow / Scale. Large serif number, tags, arrow. Links to Services page.</div></div>
+      </div>
+      <div class="ann-section">
+        <p class="ann-section-title">⑤ Testimonial</p>
+        <div class="ann-item"><div class="ann-dot">6</div><div class="ann-text">Dark band. Label left, quote right. Dot nav for multiple testimonials. <span class="ann-tag">Slider</span></div></div>
+      </div>
+      <div class="ann-section">
+        <p class="ann-section-title">⑥ Contact</p>
+        <div class="ann-item"><div class="ann-dot">7</div><div class="ann-text">Split: CTA copy + contact info left · 5-field form right.</div></div>
+      </div>
+      <hr class="ann-divider">
+      <p class="ann-section-title" style="color:#4a5240">💡 Suggested Improvements</p>
+      <div class="improve-item"><div class="improve-icon">📊</div><div class="improve-text">Add an impact stat bar below hero (15+ yrs · 30+ orgs · 3 sectors)</div></div>
+      <div class="improve-item"><div class="improve-icon">🎯</div><div class="improve-text">"Who I Work With" section (NGOs, social enterprises, foundations)</div></div>
+      <div class="improve-item"><div class="improve-icon">🔗</div><div class="improve-text">LinkedIn social proof widget near the contact section</div></div>
+      <div class="improve-item"><div class="improve-icon">📱</div><div class="improve-text">Sticky floating "Let's Talk" button for mobile viewports</div></div>
+    </div>
+
+    <div id="ann-services" style="display:none">
+      <p class="ann-title">Annotations — Services</p>
+      <div class="ann-section">
+        <p class="ann-section-title">① Page Hero</p>
+        <div class="ann-item"><div class="ann-dot">1</div><div class="ann-text">Dark hero, tagline, breadcrumb "Home / Services". Sets tone before scrolling.</div></div>
+      </div>
+      <div class="ann-section">
+        <p class="ann-section-title">② Service Blocks</p>
+        <div class="ann-item"><div class="ann-dot">2</div><div class="ann-text">Alternating image/text layout. Large serif number anchors each block. Three distinct sections: body copy, how it works, what changes.</div></div>
+        <div class="ann-item"><div class="ann-dot">3</div><div class="ann-text">Keyword tags display methodology items — scannable, reassuring to funders.</div></div>
+      </div>
+      <div class="ann-section">
+        <p class="ann-section-title">③ Leadership Advisory</p>
+        <div class="ann-item"><div class="ann-dot">4</div><div class="ann-text">Visually differentiated centred callout on sandy bg. Exclusive/premium feel. Direct CTA.</div></div>
+      </div>
+      <hr class="ann-divider">
+      <p class="ann-section-title" style="color:#4a5240">💡 Suggested Improvements</p>
+      <div class="improve-item"><div class="improve-icon">📌</div><div class="improve-text">Sticky subnav (Align / Grow / Scale / Advisory) for quick section jumping</div></div>
+      <div class="improve-item"><div class="improve-icon">💬</div><div class="improve-text">Add a client outcome quote to each service block for social proof</div></div>
+      <div class="improve-item"><div class="improve-icon">🔘</div><div class="improve-text">"Book a Discovery Call" micro-CTA at the end of each block</div></div>
+    </div>
+
+    <div id="ann-story" style="display:none">
+      <p class="ann-title">Annotations — My Story</p>
+      <div class="ann-section">
+        <p class="ann-section-title">① Story Hero</p>
+        <div class="ann-item"><div class="ann-dot">1</div><div class="ann-text">Dark full-width panel with origin story pull-quote. Emotional, personal — builds trust before credentials.</div></div>
+      </div>
+      <div class="ann-section">
+        <p class="ann-section-title">② Bio + Credentials</p>
+        <div class="ann-item"><div class="ann-dot">2</div><div class="ann-text">Bio copy left, credentials as icon rows right. Cambridge, Dalai Lama Fellow, LEAD India shown prominently.</div></div>
+      </div>
+      <div class="ann-section">
+        <p class="ann-section-title">③ Photo Grid</p>
+        <div class="ann-item"><div class="ann-dot">3</div><div class="ann-text">Field & work photography. Masonry grid. Lightbox on click for full view. <span class="ann-tag">Lightbox</span></div></div>
+      </div>
+      <div class="ann-section">
+        <p class="ann-section-title">④ Past Orgs</p>
+        <div class="ann-item"><div class="ann-dot">4</div><div class="ann-text">Pill-style chips for all 8 organisations. Scannable institutional trust signal.</div></div>
+      </div>
+      <hr class="ann-divider">
+      <p class="ann-section-title" style="color:#4a5240">💡 Suggested Improvements</p>
+      <div class="improve-item"><div class="improve-icon">🗺️</div><div class="improve-text">Add a simple world map showing regions worked in (India, UK, global)</div></div>
+      <div class="improve-icon">▶️</div><div class="improve-text" style="font-size:11px; line-height:1.5; color:var(--ink)">Short video intro (30–60 sec) would add warmth and credibility</div>
+    </div>
+  </aside>
+
+  <!-- CANVAS -->
+  <main class="canvas">
+
+    <!-- HOME -->
+    <div class="page active" id="page-home">
+      <p class="page-label">↓ Scroll to explore full page wireframe</p>
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div class="url-bar">arkimpact.org</div>
+        </div>
+        <div class="wf">
+
+          <nav class="wf-nav wf-redline">
+            <div class="wf-logo">The Ark Impact <em>· Radhika Kothari</em></div>
+            <div class="wf-nav-links">
+              <span class="wf-nav-link active">Home</span>
+              <span class="wf-nav-link">Services</span>
+              <span class="wf-nav-link">My Story</span>
+              <div class="wf-nav-cta">Let's Talk</div>
+            </div>
+            <div class="ann-marker" style="top:50%;right:6px;transform:translateY(-50%)">1</div>
+          </nav>
+
+          <div class="wf-hero wf-redline">
+            <div class="wf-hero-img"></div>
+            <div class="wf-hero-overlay"></div>
+            <div class="wf-hero-content">
+              <span class="wf-hero-tag">Strategy · Systems · Impact</span>
+              <h1 class="wf-hero-h1">Purpose starts the work.<br>But purpose alone<br>cannot <em>sustain it.</em></h1>
+              <p class="wf-hero-sub">Working with organisations shaping change — supporting stronger strategy, systems, and impact across social, environmental, and grassroots sectors.</p>
+              <div class="wf-hero-btns">
+                <div class="wf-btn-primary">Explore Services</div>
+                <div class="wf-btn-outline">My Story →</div>
+              </div>
+            </div>
+            <div class="wf-hero-scroll"><span>Scroll</span><div class="scroll-line"></div></div>
+            <div class="ann-marker" style="top:16px;left:16px">2</div>
+            <div class="ann-marker" style="bottom:56px;left:64px">3</div>
+          </div>
+
+          <div class="wf-intro wf-redline">
+            <div>
+              <span class="wf-section-label">The Ark Impact</span>
+              <h2 class="wf-section-title">Working at the intersection of<br><em>strategy, systems & change</em></h2>
+              <p class="wf-body">I'm a consultant, strategist, and connector with 15+ years working at the intersection of social impact, entrepreneurial thinking, and grassroots change. Through The Ark Impact, I work with founders, organisations, and mission-driven enterprises to turn bold visions into clear, real-world results.</p>
+              <div class="wf-pill-row">
+                <div class="wf-pill">15+ Years</div>
+                <div class="wf-pill">Cambridge MPhil</div>
+                <div class="wf-pill">Dalai Lama Fellow</div>
+                <div class="wf-pill">LEAD India Fellow</div>
+              </div>
+            </div>
+            <div>
+              <div class="wf-portrait">
+                <div style="font-size:36px;color:var(--wf-dark);opacity:0.35">👤</div>
+                <div class="wf-img-label">Portrait — Radhika Kothari</div>
+              </div>
+            </div>
+            <div class="ann-marker" style="top:16px;right:16px">4</div>
+          </div>
+
+          <div class="wf-cards-section wf-redline">
+            <div class="wf-cards-header">
+              <span class="wf-section-label">How We Work Together</span>
+              <h2 class="wf-section-title" style="text-align:center">Three pathways from vision<br>to <em>real momentum</em></h2>
+            </div>
+            <div class="wf-cards">
+              <div class="wf-card">
+                <div class="wf-card-num">01</div>
+                <div class="wf-card-title">Align</div>
+                <p class="wf-card-body">Clarify priorities, strengthen positioning, and prepare for the road ahead with leadership teams.</p>
+                <div class="wf-card-tags"><span class="wf-card-tag">Strategy</span><span class="wf-card-tag">Diagnostics</span><span class="wf-card-tag">Fundraising</span></div>
+                <div class="wf-card-arrow">→</div>
+              </div>
+              <div class="wf-card">
+                <div class="wf-card-num">02</div>
+                <div class="wf-card-title">Grow</div>
+                <p class="wf-card-body">Strengthen the systems that help your organisation deliver consistently and work more effectively.</p>
+                <div class="wf-card-tags"><span class="wf-card-tag">Operating Models</span><span class="wf-card-tag">Role Clarity</span><span class="wf-card-tag">Processes</span></div>
+                <div class="wf-card-arrow">→</div>
+              </div>
+              <div class="wf-card">
+                <div class="wf-card-num">03</div>
+                <div class="wf-card-title">Scale</div>
+                <p class="wf-card-body">Expand reach without losing integrity — credible, measurable, and sustainable impact.</p>
+                <div class="wf-card-tags"><span class="wf-card-tag">MEL Frameworks</span><span class="wf-card-tag">Governance</span><span class="wf-card-tag">Partnerships</span></div>
+                <div class="wf-card-arrow">→</div>
+              </div>
+            </div>
+            <div class="ann-marker" style="top:16px;right:16px">5</div>
+          </div>
+
+          <div class="wf-testimonial wf-redline">
+            <div>
+              <span class="wf-test-label">Success Stories</span>
+              <h3 class="wf-test-title">What organisations say</h3>
+              <div class="wf-test-dots">
+                <div class="wf-test-dot active"></div>
+                <div class="wf-test-dot"></div>
+                <div class="wf-test-dot"></div>
+              </div>
+            </div>
+            <div>
+              <p class="wf-test-quote">"The support wasn't just strategic — it was transformational. Our team finally had the clarity to move forward with confidence."</p>
+              <div class="wf-test-author">Client Name · Organisation · 2024</div>
+            </div>
+            <div class="ann-marker" style="top:16px;right:16px">6</div>
+          </div>
+
+          <div class="wf-cta wf-redline">
+            <div>
+              <span class="wf-section-label">Get in Touch</span>
+              <h3 class="wf-cta-title">I'm not here to tick boxes. I'm here to <em>roll up my sleeves</em> with you.</h3>
+              <p class="wf-cta-body">So let's talk about your work — where you are, where you want to go, and how we might work together.</p>
+              <div class="wf-contact-item"><span class="wf-contact-icon">✉</span><span class="wf-contact-text">info@thearkimpact.com</span></div>
+              <div class="wf-contact-item"><span class="wf-contact-icon">📞</span><span class="wf-contact-text">+91 000-000-0000</span></div>
+              <div class="wf-contact-item"><span class="wf-contact-icon">in</span><span class="wf-contact-text">linkedin.com/in/radhikakothari</span></div>
+            </div>
+            <div class="wf-form">
+              <div class="wf-form-row">
+                <input class="wf-input" placeholder="First name *" readonly>
+                <input class="wf-input" placeholder="Last name *" readonly>
+              </div>
+              <input class="wf-input" placeholder="Email *" readonly>
+              <input class="wf-input" placeholder="Subject" readonly>
+              <textarea class="wf-input wf-textarea" placeholder="Your message…" readonly></textarea>
+              <button class="wf-submit">Send Message →</button>
+            </div>
+            <div class="ann-marker" style="top:16px;right:16px">7</div>
+          </div>
+
+          <div class="wf-footer">
+            <div class="wf-footer-logo">The Ark Impact</div>
+            <div class="wf-footer-links"><span class="wf-footer-link">Home</span><span class="wf-footer-link">Services</span><span class="wf-footer-link">My Story</span><span class="wf-footer-link">Contact</span></div>
+            <div class="wf-footer-copy">©2025 Radhika Kothari</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- SERVICES -->
+    <div class="page" id="page-services">
+      <p class="page-label">Services Page Wireframe</p>
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div class="url-bar">arkimpact.org/services</div>
+        </div>
+        <div class="wf">
+
+          <nav class="wf-nav">
+            <div class="wf-logo">The Ark Impact <em>· Radhika Kothari</em></div>
+            <div class="wf-nav-links">
+              <span class="wf-nav-link">Home</span>
+              <span class="wf-nav-link active">Services</span>
+              <span class="wf-nav-link">My Story</span>
+              <div class="wf-nav-cta">Let's Talk</div>
+            </div>
+          </nav>
+
+          <div class="wf-page-hero wf-redline" style="position:relative">
+            <span class="wf-section-label" style="color:rgba(255,255,255,0.3)">Home · Services</span>
+            <h1 class="wf-page-hero-title">Three practical pathways<br>from vision to <em style="color:var(--accent)">execution.</em></h1>
+            <p class="wf-page-hero-sub">Align · Grow · Scale — meeting organisations where they are</p>
+            <div class="ann-marker" style="top:16px;right:16px">1</div>
+          </div>
+
+          <div class="wf-service-block wf-redline" style="position:relative">
+            <div class="wf-service-img"><div style="font-size:36px;opacity:0.3">🏔</div><div class="wf-img-label">Zen Garden Photo</div></div>
+            <div class="wf-service-content">
+              <span class="wf-service-num">01</span>
+              <h2 class="wf-service-title">Align</h2>
+              <p class="wf-service-body">Support leadership teams to clarify priorities, strengthen positioning, and prepare for the road ahead. Space to step back, reflect, and deliberate on where to focus.</p>
+              <p class="wf-service-how">How it works</p>
+              <div class="wf-service-tags"><span class="wf-service-tag">Strategy development</span><span class="wf-service-tag">Org diagnostics</span><span class="wf-service-tag">Theory of change</span><span class="wf-service-tag">Programme alignment</span><span class="wf-service-tag">Fundraising readiness</span></div>
+              <p class="wf-service-change">What changes: Clear direction. Confident decisions. Stronger foundations for the next phase.</p>
+            </div>
+            <div class="ann-marker" style="top:16px;right:16px">2</div>
+          </div>
+
+          <div class="wf-service-block rev wf-redline" style="background:var(--cream); position:relative">
+            <div class="wf-service-img"><div style="font-size:36px;opacity:0.3">🌲</div><div class="wf-img-label">Forest Photo</div></div>
+            <div class="wf-service-content">
+              <span class="wf-service-num">02</span>
+              <h2 class="wf-service-title">Grow</h2>
+              <p class="wf-service-body">Complexity grows with the organisation. Strengthen the systems that help deliver consistently — more people, more programmes, smoother moving parts.</p>
+              <p class="wf-service-how">How it works</p>
+              <div class="wf-service-tags"><span class="wf-service-tag">Operating models</span><span class="wf-service-tag">Team structures</span><span class="wf-service-tag">Role clarity</span><span class="wf-service-tag">Internal processes</span><span class="wf-service-tag">Programme design</span><span class="wf-service-tag">Coordination systems</span></div>
+              <p class="wf-service-change">What changes: Smoother operations. Stronger teams. More reliable delivery.</p>
+            </div>
+            <div class="ann-marker" style="top:16px;right:16px">3</div>
+          </div>
+
+          <div class="wf-service-block wf-redline" style="position:relative">
+            <div class="wf-service-img"><div style="font-size:36px;opacity:0.3">⛰</div><div class="wf-img-label">Mountain Sunset Photo</div></div>
+            <div class="wf-service-content">
+              <span class="wf-service-num">03</span>
+              <h2 class="wf-service-title">Scale</h2>
+              <p class="wf-service-body">As organisations mature, expectations rise — from funders, partners, and communities. Expand reach without losing integrity.</p>
+              <p class="wf-service-how">How it works</p>
+              <div class="wf-service-tags"><span class="wf-service-tag">Impact measurement</span><span class="wf-service-tag">MEL frameworks</span><span class="wf-service-tag">Evaluation design</span><span class="wf-service-tag">Governance</span><span class="wf-service-tag">Scale strategy</span><span class="wf-service-tag">Institutional partnerships</span></div>
+              <p class="wf-service-change">What changes: Credible impact. Sustainable growth. Institutional confidence.</p>
+            </div>
+          </div>
+
+          <div class="wf-advisory wf-redline" style="position:relative">
+            <div class="wf-advisory-inner">
+              <span class="wf-section-label">For Founders & Senior Leaders</span>
+              <h2 class="wf-advisory-title">Exclusive Leadership Advisory</h2>
+              <p class="wf-advisory-body">Some decisions shape the future of an organisation. I work closely with founders and leadership teams as a trusted thought partner — strategic counsel and confidential sounding-board support through moments of growth, transition, and high-stakes decision-making.</p>
+              <div class="wf-btn-primary">Enquire About Advisory</div>
+            </div>
+            <div class="ann-marker" style="top:16px;right:16px">4</div>
+          </div>
+
+          <div class="wf-cta">
+            <div>
+              <span class="wf-section-label">Get in Touch</span>
+              <h3 class="wf-cta-title">Let's talk about <em>your work</em></h3>
+              <p class="wf-cta-body">Tell us where you are and where you want to go.</p>
+              <div class="wf-contact-item"><span class="wf-contact-icon">✉</span><span class="wf-contact-text">info@thearkimpact.com</span></div>
+            </div>
+            <div class="wf-form">
+              <div class="wf-form-row">
+                <input class="wf-input" placeholder="First name *" readonly>
+                <input class="wf-input" placeholder="Last name *" readonly>
+              </div>
+              <input class="wf-input" placeholder="Email *" readonly>
+              <input class="wf-input" placeholder="Subject" readonly>
+              <textarea class="wf-input wf-textarea" placeholder="Your message…" readonly></textarea>
+              <button class="wf-submit">Send Message →</button>
+            </div>
+          </div>
+
+          <div class="wf-footer">
+            <div class="wf-footer-logo">The Ark Impact</div>
+            <div class="wf-footer-links"><span class="wf-footer-link">Home</span><span class="wf-footer-link">Services</span><span class="wf-footer-link">My Story</span></div>
+            <div class="wf-footer-copy">©2025 Radhika Kothari</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- MY STORY -->
+    <div class="page" id="page-story">
+      <p class="page-label">My Story Page Wireframe</p>
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div class="url-bar">arkimpact.org/my-story</div>
+        </div>
+        <div class="wf">
+
+          <nav class="wf-nav">
+            <div class="wf-logo">The Ark Impact <em>· Radhika Kothari</em></div>
+            <div class="wf-nav-links">
+              <span class="wf-nav-link">Home</span>
+              <span class="wf-nav-link">Services</span>
+              <span class="wf-nav-link active">My Story</span>
+              <div class="wf-nav-cta">Let's Talk</div>
+            </div>
+          </nav>
+
+          <div class="wf-story-hero wf-redline" style="position:relative">
+            <div style="max-width:680px">
+              <span class="wf-section-label" style="color:rgba(255,255,255,0.3); display:block; margin-bottom:16px">My Story</span>
+              <p style="font-family:'Cormorant Garamond',serif; font-size:72px; line-height:0.8; color:rgba(255,255,255,0.08); margin-bottom:4px">"</p>
+              <p style="font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:300; font-style:italic; color:rgba(255,255,255,0.82); line-height:1.65; margin-bottom:24px">Early in my journey, I witnessed something that stayed with me — a passionate team doing meaningful work worn down by fragile systems. Purpose is powerful, but it needs structure to survive.</p>
+              <p style="font-size:11px; letter-spacing:0.15em; text-transform:uppercase; color:var(--accent)">— Radhika Kothari, Founder</p>
+            </div>
+            <div class="ann-marker" style="top:16px;right:16px">1</div>
+          </div>
+
+          <div class="wf-story-intro wf-redline" style="position:relative">
+            <div>
+              <span class="wf-section-label">About Me</span>
+              <h2 class="wf-section-title" style="font-size:30px">15+ years bridging community realities with <em>organisational strategy</em></h2>
+              <p class="wf-body" style="margin-bottom:20px">My work spans field landscapes, grassroots institutions, and national & global networks — bridging community realities with organisational strategy and institutional strengthening.</p>
+              <p class="wf-body">Field experience includes working closely with communities on conservation, livelihoods, and local development. This blend of field immersion, institutional advisory, and global exposure has shaped work that is strategic, grounded, and built for real-world complexity.</p>
+            </div>
+            <div>
+              <span class="wf-section-label">Credentials & Fellowships</span>
+              <div class="wf-cred-item">
+                <span class="wf-cred-icon">🎓</span>
+                <div><div class="wf-cred-title">MPhil, Conservation Leadership</div><div class="wf-cred-sub">University of Cambridge</div></div>
+              </div>
+              <div class="wf-cred-item">
+                <span class="wf-cred-icon">🏆</span>
+                <div><div class="wf-cred-title">Dalai Lama Fellow</div><div class="wf-cred-sub">Global social leadership recognition</div></div>
+              </div>
+              <div class="wf-cred-item">
+                <span class="wf-cred-icon">🏆</span>
+                <div><div class="wf-cred-title">Cambridge Scholar</div><div class="wf-cred-sub">University of Cambridge</div></div>
+              </div>
+              <div class="wf-cred-item">
+                <span class="wf-cred-icon">🏆</span>
+                <div><div class="wf-cred-title">LEAD India Fellow</div><div class="wf-cred-sub">Leadership for Environment and Development</div></div>
+              </div>
+            </div>
+            <div class="ann-marker" style="top:16px;right:16px">2</div>
+          </div>
+
+          <div class="wf-photo-grid wf-redline" style="position:relative">
+            <div class="wf-photo-thumb" style="grid-row:span 2;aspect-ratio:unset;min-height:200px">🖼</div>
+            <div class="wf-photo-thumb">🖼</div>
+            <div class="wf-photo-thumb" style="grid-column:span 2;aspect-ratio:16/7">🖼</div>
+            <div class="wf-photo-thumb">🖼</div>
+            <div class="wf-photo-thumb">🖼</div>
+            <div class="wf-photo-thumb">🖼</div>
+            <div class="wf-photo-thumb">🖼</div>
+            <div class="ann-marker" style="top:16px;right:16px">3</div>
+          </div>
+
+          <div class="wf-orgs wf-redline" style="position:relative">
+            <span class="wf-section-label">Previous Organisations</span>
+            <h3 class="wf-section-title" style="font-size:26px">Experience across leading institutions</h3>
+            <div class="wf-orgs-grid">
+              <div class="wf-org-chip">GroundUp Conservation</div>
+              <div class="wf-org-chip">WWF India</div>
+              <div class="wf-org-chip">BirdLife International</div>
+              <div class="wf-org-chip">Snow Leopard Conservancy</div>
+              <div class="wf-org-chip">Wildlife Conservation Trust</div>
+              <div class="wf-org-chip">Leh Nutrition Project</div>
+              <div class="wf-org-chip">LEAD India</div>
+              <div class="wf-org-chip">Ecotourism & Conservation Society of Sikkim</div>
+            </div>
+            <div class="ann-marker" style="top:16px;right:16px">4</div>
+          </div>
+
+          <div class="wf-cta">
+            <div>
+              <span class="wf-section-label">Get in Touch</span>
+              <h3 class="wf-cta-title">I'm not here to tick boxes. Let's talk about <em>your work.</em></h3>
+              <p class="wf-cta-body">Reach out to explore how we might work together.</p>
+              <div class="wf-contact-item"><span class="wf-contact-icon">✉</span><span class="wf-contact-text">info@thearkimpact.com</span></div>
+            </div>
+            <div class="wf-form">
+              <div class="wf-form-row">
+                <input class="wf-input" placeholder="First name *" readonly>
+                <input class="wf-input" placeholder="Last name *" readonly>
+              </div>
+              <input class="wf-input" placeholder="Email *" readonly>
+              <textarea class="wf-input wf-textarea" placeholder="Your message…" readonly></textarea>
+              <button class="wf-submit">Send Message →</button>
+            </div>
+          </div>
+
+          <div class="wf-footer">
+            <div class="wf-footer-logo">The Ark Impact</div>
+            <div class="wf-footer-links"><span class="wf-footer-link">Home</span><span class="wf-footer-link">Services</span><span class="wf-footer-link">My Story</span></div>
+            <div class="wf-footer-copy">©2025 Radhika Kothari</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  function showPage(id, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    btn.classList.add('active');
+    ['home','services','story'].forEach(p => {
+      document.getElementById('ann-' + p).style.display = (p === id) ? 'block' : 'none';
+    });
+    document.querySelector('.canvas').scrollTo(0, 0);
+  }
+</script>
+</body>
+</html>
